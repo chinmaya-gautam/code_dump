@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+
+my $input = <STDIN>;
+chomp $input;
+if($input =~ /(\d+)\s+(\d+)/){
+
+my $request = $1;
+my $balance = $2;
+
+print "$request $balance\n";
+}

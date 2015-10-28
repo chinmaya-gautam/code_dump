@@ -1,0 +1,260 @@
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+#include <cstdlib>
+#include <algorithm>
+
+#include "GA.h"
+#define pi 4*atan(1)
+
+#define f(x) sin(((x)*pi)/(255))
+
+
+using namespace std;
+
+class GA{
+	int population[POPULATION_SIZE][NUM_BITS];
+	float data_table[POPULATION_SIZE][4];
+	int selected[POPULATION_SIZE];
+	float average_fitness;
+public:
+	GA();
+	void bin_to_gray(int*);
+	int gray_to_dec(int*);
+	void create_data();
+	void print_data();
+	void process_data();
+	void crossover();
+	void mutate();
+};
+
+
+int main(){
+	srand(time(NULL));
+	GA problem;
+cout<<"\nGA optimization";
+cout<<"\n\nf(x): sin(x*pi/255)\n";
+problem.print_data();
+for(int i=0;i<NUM_ITERATIONS;i++){
+	problem.process_data();
+	problem.print_data();
+	}
+
+cout<<endl;
+return 0;
+}
+
+GA::GA(){
+	for(int i=0;i<POPULATION_SIZE;i++){
+		for(int j=0;j<NUM_BITS;j++){
+			population[i][j]=rand()%2;
+		}
+		bin_to_gray(population[i]);
+	}
+	create_data();
+}
+void GA::bin_to_gray(int bin[NUM_BITS]){
+	int gray[NUM_BITS];
+	gray[NUM_BITS-1]=bin[NUM_BITS-1];
+	for(int i=NUM_BITS-2;i>=0;i--){
+		gray[i]=bin[i] xor bin[i+1];
+	}
+	for(int i=0;i<NUM_BITS;bin[i]=gray[i++]);
+}
+
+void GA::print_data(){
+	printf("individuals\t\tx\t\tf(x)\t\tfnorm\t\tCummulative fnorm\n");
+	printf("\n--------------------------------------------------------------------------------------------------------------------------\n");
+	for(int i=0;i<POPULATION_SIZE;i++){
+		for(int j=NUM_BITS-1;j>=0;j--) printf("%d",population[i][j]);
+		printf("\t\t%f\t%f\t%f\t\t%f\n",data_table[i][0],data_table[i][1],data_table[i][2],data_table[i][3]);
+	}
+	cout<<"\n\naverage fitness: "<<average_fitness<<endl;
+}
+
+void GA::create_data(){
+	float sum=0;
+	for(int i=0;i<POPULATION_SIZE;i++){
+		data_table[i][0]=gray_to_dec(population[i]);
+		data_table[i][1]=f(data_table[i][0]);
+		sum+=data_table[i][1];
+	}
+	
+	for(int i=0;i<POPULATION_SIZE;i++){
+		data_table[i][2]=data_table[i][1]/sum;
+		if(i==0){data_table[i][3]=data_table[i][2];}
+		else{data_table[i][3]=data_table[i][2]+data_table[i-1][3];}
+	}
+	average_fitness=sum/POPULATION_SIZE;
+
+}
+
+int GA::bin_to_dec(int bin[NUM_BITS]){
+	int ans=0;
+	for(int i=0;i<NUM_BITS;i++){
+		ans+=bin[i]*pow(2,i);
+	}
+	return ans;
+}
+
+void GA::process_data(){
+	int temp_population[POPULATION_SIZE][NUM_BITS];
+	float sum;
+	
+	for(int i=0;i<POPULATION_SIZE;i++){
+	float random_number=rand();
+ 	random_number=random_number/RAND_MAX;
+	printf("%8.7f\t\tselected: ",random_number);
+	
+		for(int j=0;j<POPULATION_SIZE;j++){
+			if(random_number<=data_table[j][3]){
+				selected[i]=j;
+				break;
+			}
+		}
+		for(int j=0;j<NUM_BITS;j++){
+			temp_population[i][j]=population[selected[i]][j];
+		}
+	cout<<selected[i]<<"\t";
+		for(int j=0;j<NUM_BITS;j++){
+			cout<<temp_population[i][j];
+		}
+		cout<<"\t\t";
+		cout<<endl;
+		
+	}
+	for(int i=0,j=0;i<POPULATION_SIZE;i++){
+		for(int j=0;j<NUM_BITS;j++)
+		population[i][j]=temp_population[i][j];
+	}
+	
+	crossover();
+	mutate();
+	create_data();
+}
+
+void GA::crossover(){
+	//randomize population
+	int num1,num2;
+	for(int i=0;i<POPULATION_SIZE;i++){
+		num1=rand()%POPULATION_SIZE;
+		num2=rand()%POPULATION_SIZE;
+		for(int j=0;j<NUM_BITS;j++){
+			swap(population[num1][j],population[num2][j]);
+		}
+	}
+	system("clear");
+	cout<<"\n\n\t\tCROSSOVER\n\n";
+	float random_number;
+	int point1,point2;
+	int temp_population[POPULATION_SIZE][NUM_BITS];
+	
+	for(int i=0;i<POPULATION_SIZE;i++){
+		for(int j=0;j<NUM_BITS;temp_population[i][j]=population[i][j++]);
+	}
+	
+	cout<<"before\t\t\t\tafter\n----------------------------------------------------------------------\n";
+	for(int i=0;i<POPULATION_SIZE;i+=2){
+		cout<<endl;
+		random_number=(float)rand()/RAND_MAX;
+		if(random_number>CROSSOVER_PROB){
+			for(int j=0;j<NUM_BITS;cout<<population[i][j++]);
+				cout<<"\t\t\t\t";
+			for(int j=0;j<NUM_BITS;cout<<population[i][j++]);
+			cout<<endl;
+			for(int j=0;j<NUM_BITS;cout<<population[i+1][j++]);
+				cout<<"\t\t\t\t";
+			for(int j=0;j<NUM_BITS;cout<<population[i+1][j++]);
+			continue;	
+		}
+		point1=rand()%NUM_BITS;
+		point2=rand()%NUM_BITS;
+		switch(CROSSOVER_MODE){
+			case 0:point1=CROSSOVER_POINT2;
+				   point2=NUM_BITS-1;
+				   break;
+			case 1:point2=NUM_BITS-1;
+				   break;
+			case 2:point1=CROSSOVER_POINT1;
+				   point2=CROSSOVER_POINT2;
+				   break;
+			case 3:point2=point1+(CROSSOVER_POINT2-CROSSOVER_POINT1);
+				   if(point2>=NUM_BITS){
+						point2=point2-NUM_BITS;
+					}
+					break;
+			case 4:point1=CROSSOVER_POINT1;
+				   break;
+			case 5:break;
+		}
+		if(point2>point1){
+			
+			for(int j=point1;j<=point2;j++){
+				swap(population[i][j],population[i+1][j]);
+			}
+			
+			for(int j=0;j<point1;cout<<temp_population[i][j++]);
+			for(int j=point1;j<=point2;cout<<"\033[31m"<<temp_population[i][j++]<<"\033[0m");
+			for(int j=point2+1;j<NUM_BITS;cout<<temp_population[i][j++]);
+			cout<<"\t\t\t\t";
+			for(int j=0;j<point1;cout<<population[i][j++]);
+			for(int j=point1;j<=point2;cout<<"\033[32m"<<population[i][j++]<<"\033[0m");
+			for(int j=point2+1;j<NUM_BITS;cout<<population[i][j++]);
+
+			cout<<endl;
+			for(int j=0;j<point1;cout<<temp_population[i+1][j++]);
+			for(int j=point1;j<=point2;cout<<"\033[31m"<<temp_population[i+1][j++]<<"\033[0m");
+			for(int j=point2+1;j<NUM_BITS;cout<<temp_population[i+1][j++]);
+			cout<<"\t\t\t\t";
+			for(int j=0;j<point1;cout<<population[i+1][j++]);
+			for(int j=point1;j<=point2;cout<<"\033[32m"<<population[i+1][j++]<<"\033[0m");
+			for(int j=point2+1;j<NUM_BITS;cout<<population[i+1][j++]);
+		
+		}
+		else{
+			
+			for(int j=point1;j<NUM_BITS;j++){
+				swap(population[i][j],population[i+1][j]);
+			}
+			for(int j=0;j<=point2;j++){
+				swap(population[i][j],population[i+1][j]);
+			}
+			
+			for(int j=0;j<point2;cout<<"\033[31m"<<temp_population[i][j++]<<"\033[0m");
+			for(int j=point2;j<point1;cout<<temp_population[i][j++]);
+			for(int j=point1;j<NUM_BITS;cout<<"\033[31m"<<temp_population[i][j++]<<"\033[0m");
+			cout<<"\t\t\t\t";
+			for(int j=0;j<point2;cout<<"\033[32m"<<population[i][j++]<<"\033[0m");
+			for(int j=point2;j<point1;cout<<population[i][j++]);
+			for(int j=point1;j<NUM_BITS;cout<<"\033[32m"<<population[i][j++]<<"\033[0m");
+			cout<<endl;
+			for(int j=0;j<point2;cout<<"\033[31m"<<temp_population[i+1][j++]<<"\033[0m");
+			for(int j=point2;j<point1;cout<<temp_population[i+1][j++]);
+			for(int j=point1;j<NUM_BITS;cout<<"\033[31m"<<temp_population[i+1][j++]<<"\033[0m");
+			cout<<"\t\t\t\t";
+			for(int j=0;j<point2;cout<<"\033[32m"<<population[i+1][j++]<<"\033[0m");
+			for(int j=point2;j<point1;cout<<population[i+1][j++]);
+			for(int j=point1;j<NUM_BITS;cout<<"\033[32m"<<population[i+1][j++]<<"\033[0m");
+		}
+		
+	}
+// 	system("sleep 2");
+	cout<<"\n\n";
+}
+void GA::mutate(){
+	cout<<"\n\nMUTATION\n\n";
+	float random_number;
+	for(int i=0;i<POPULATION_SIZE;i++){
+		for(int j=0;j<NUM_BITS;j++){
+			
+			random_number=(float)rand()/RAND_MAX;
+			if(random_number<MUTATION_PROB){
+				population[i][j]==0?population[i][j]=1:population[i][j]=0;
+				cout<<"\033[34m"<<population[i][j]<<"\033[0m";
+				
+			}
+			else{cout<<population[i][j];}
+		}
+		cout<<endl;
+	}
+}

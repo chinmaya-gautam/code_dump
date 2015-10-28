@@ -1,0 +1,23 @@
+#include <QApplication>
+#include <QFlags>
+#include <QWidget>
+#include <QPushButton>
+// 
+int main(int argc,char *argv[]){
+QApplication app(argc,argv);
+//MainWindow main(Qt::CustomizeWindowHint);
+//main.setWindowOpacity(0.5);
+QWidget *main = new QWidget(0/*,Qt::CustomizeWindowHint*/);
+main->setGeometry(20,20,200,100);
+//main->setStyleSheet("background:transparent;");
+//     main->setAttribute(Qt::WA_TranslucentBackground);
+    main->setWindowFlags(Qt::FramelessWindowHint);
+	main->setAttribute(Qt::NoSystemBackground);
+//QPushButton *button = new QPushButton("quit",main);
+//button->setGeometry(20,20,100,50);
+//QObject::connect(button,SIGNAL(clicked()),main,SLOT(close()));
+
+main->show();
+return app.exec();
+
+}

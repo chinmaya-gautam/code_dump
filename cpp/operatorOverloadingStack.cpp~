@@ -1,0 +1,34 @@
+#include <iostream>
+
+using namespace std;
+
+class Stack {
+
+private:
+  int data[MAX_ITEMS];
+  int top;
+public:
+  Stack():top(-1){};
+  ~Stack(){};
+  void display();
+  void operator+(int);
+  int operator--(int);
+};
+
+int main(){
+
+  Stack newStack;
+  return 0;
+}
+
+void Stack::display(){
+
+}
+
+void Stack::operator+(int i){
+  data[++top]=i;
+}
+
+int Stack::operator--(int dummy){
+  return data[top--];
+}

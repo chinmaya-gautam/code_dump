@@ -1,0 +1,334 @@
+//ant simulation
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+#include <cmath>
+
+#define distance(x1,y1,x2,y2) sqrt(((x2)-(x1))*((x2)-(x1))+((y2)-(y1))*((y2)-(y1))) 
+
+#define MAX_ROWS 	100
+#define MAX_COLUMNS	100
+#define NUM_ANTS	100
+#define RAND_STEP	10
+#define RANGE		5
+
+enum directions{e,ne,n,nw,w,sw,s,se};
+enum modes{explore,transport,target};
+enum objects{fellow_ant,food,nest};
+
+using namespace std;
+class feild{
+	char mat[MAX_ROWS][MAX_COLUMNS][2];//second layer marks the path to food
+	int nest_x,nest_y;
+	int food_x,food_y;
+	public:
+		feild();
+		void print_feild();
+		friend class ant;
+	
+}fld;
+class ant{
+	int mode;
+	int posx,posy;
+	int target_x,target_y;
+	int dir;
+	int steps;
+	int prev_x,prev_y;
+	int control[3];	//found food? if yes then location
+public:
+	ant();
+	void move();
+	bool step(int);
+	bool search(int);
+}ants[NUM_ANTS];
+int main(){
+
+	system("clear");
+	fld.print_feild();
+	system("sleep 2");
+ 	while(1){
+		for(int i=0;i<NUM_ANTS;i++){ants[i].move();}
+		system("clear");
+		fld.print_feild();
+		system("sleep 0.025");
+ 	}
+return 0;
+}
+
+feild::feild(){
+		srand(time(NULL));
+	nest_x=rand()%MAX_ROWS;
+	nest_y=rand()%MAX_COLUMNS;
+	cout<<"\nconfiguring the scenario...\n";
+	system("sleep 0.5");
+	food_x=rand()%MAX_ROWS;
+	food_y=rand()%MAX_COLUMNS;
+	
+	for(int i=0;i<MAX_ROWS;i++){
+		for(int j=0;j<MAX_COLUMNS;j++){
+			if(i==nest_x&&j==nest_y){
+				mat[i][j][0]='N';
+				mat[i][j][1]='.';
+				continue;
+			}
+			if(i==food_x&&j==food_y){
+				mat[i][j][0]='F';
+				mat[i][j][1]='.';
+				continue;
+			}
+			mat[i][j][0]='.';
+			mat[i][j][1]='.';
+		}
+	}
+}
+
+void feild::print_feild(){
+	for(int i=0;i<MAX_ROWS;i++){
+		for(int j=0;j<MAX_COLUMNS;j++){
+			switch(mat[i][j][0]){
+				case '.':cout<<"\033[32m. \033[0m";
+						break;
+				case 'N':cout<<"\033[40m  \033[0m";
+						break;
+				case 'F':cout<<"\033[47m  \033[0m";
+						break;
+				case 'A':cout<<"\033[41m  \033[0m";
+						break;
+			}
+		}
+		cout<<"\t\t\t";
+		for(int j=0;j<MAX_COLUMNS;j++){
+			if(mat[i][j][1]=='.'){
+			cout<<"\033[33m"<<mat[i][j][1]<<" \033[0m";
+			}
+			else{
+			cout<<"\033[41m  \033[0m";
+				
+			}
+		}
+		cout<<endl;
+	}
+}
+
+ant::ant(){
+	posx=fld.nest_x;
+	posy=fld.nest_y;
+	dir=rand()%8;
+	mode=explore;
+	target_x=fld.nest_x;
+	target_y=fld.nest_y;
+	prev_x=-1;					//the step 
+	prev_y=-1;					//last taken
+	control[0]=control[1]=control[2]=0;
+	cout<<"\nnew ant\n\tposx:\t"<<posx<<"\n\tposy:\t"<<posy<<"\n\tdir:\t"<<dir<<endl;
+}
+
+void ant::move(){
+	if(mode==explore){
+		if(steps<RAND_STEP){
+			steps++;
+			if(fld.mat[posx][posy][0]!='N'&&fld.mat[posx][posy][0]!='F')fld.mat[posx][posy][0]='.';
+			step(explore);
+			if(search(food)){
+				mode=target;
+				control[0]=1;
+				control[1]=target_x;
+				control[2]=target_y;
+			}
+			if(search(fellow_ant)){
+				for(int i=0;i<NUM_ANTS;i++){
+					for(int j=ants[i].posx-RANGE;j<=ants[i].posx+RANGE;j++){
+						for(int k=ants[i].posy-RANGE;k<=ants[i].posy+RANGE;k++){
+							if(posx==j&&posy==k){
+								if(ants[i].control[0]==1){
+									control[1]=target_x=ants[i].control[1];
+									control[2]=target_y=ants[i].control[2];
+									mode=target;
+									control[0]=1;
+								}
+							}
+						}
+					}
+				}
+				
+			}
+			if(fld.mat[posx][posy][0]!='N'&&fld.mat[posx][posy][0]!='F')fld.mat[posx][posy][0]='A';
+		}
+		else{
+			steps=0;
+		dir=rand()%8;
+		}
+	}
+	else if(mode==target){
+		if(fld.mat[posx][posy][0]!='N'&&fld.mat[posx][posy][0]!='F')fld.mat[posx][posy][0]='.';
+		if(step(target)){
+			target_x=fld.nest_x;
+			target_y=fld.nest_y;
+			
+			mode=transport;
+		}
+			if(fld.mat[posx][posy][0]!='N'&&fld.mat[posx][posy][0]!='F')fld.mat[posx][posy][0]='A';
+		
+	}
+	else if(mode=transport){
+		if(fld.mat[posx][posy][0]!='N'&&fld.mat[posx][posy][0]!='F')fld.mat[posx][posy][0]='.';
+		if(step(transport)){
+			prev_x=posx;
+			prev_y=posy;
+		}
+			if(fld.mat[posx][posy][0]!='N'&&fld.mat[posx][posy][0]!='F')fld.mat[posx][posy][0]='A';
+		
+	}
+	
+}
+bool ant::step(int mode){
+	int min_x,min_y;
+	int temp_x,temp_y;
+	switch(mode){
+		case explore:switch(dir){
+						case e:if(posy==MAX_COLUMNS-1){
+									dir=rand()%8;
+									return false;
+								}
+								else posy=posy+1;
+								break;
+						case ne:if(posy==MAX_COLUMNS-1||posx==0){
+									dir=rand()%8;
+									return  false;
+								}
+								else {posx=posx-1;
+									posy=posy+1;
+								}
+								break;
+						case n:if(posx==0){
+									dir=rand()%8;
+									return false;
+								}
+								else posx=posx-1;
+								break;
+						case nw:if(posx==0||posy==0){
+									dir=rand()%8;
+									return false;
+								}
+								else {posx=posx-1;
+								posy=posy-1;
+								}
+								break;
+						case w:if(posy==0){
+									dir=rand()%8;
+									return false;
+								}
+								else posy=posy-1;
+								break;
+						case sw:if(posx==MAX_ROWS-1||posy==0){
+									dir=rand()%8;
+									return false;
+								}
+								else {posx=posx+1;
+									posy=posy-1;
+								}
+								break;
+						case s:if(posx==MAX_ROWS-1){
+									dir=rand()%8;
+									return false;
+								}
+								else posx=posx+1;
+								break;
+						case se:if(posx==MAX_ROWS-1||posy==MAX_COLUMNS-1){
+									dir=rand()%8;
+									return false;
+								}
+								else {
+									posx=posx+1;
+									posy=posy+1;
+								}
+								break;
+					}
+					break;
+		case target:min_x=posx;
+					min_y=posy;
+					for(int i=posx-1;i<=posx+1;i++){
+						for(int j=posy-1;j<=posy+1;j++){
+							if(distance(target_x,target_y,i,j)<distance(target_x,target_y,min_x,min_y)){
+								min_x=i;
+								min_y=j;
+							}
+						}
+					}
+					posx=min_x;
+					posy=min_y;
+					if(posx==target_x&&posy==target_y){return true;}
+					else {return false;}
+					break;
+		case transport:	
+							
+							temp_x=posx;
+						temp_y=posy;
+						for(int i=posx-1;i<posx+2;i++){
+						for(int j=posy-1;j<posy+2;j++){
+							if(i==posx&&j==posy)continue;
+							if(fld.mat[i][j][1]=='X'&&(i!=prev_x||j!=prev_y)){
+								
+								posx=i;
+								posy=j;
+								if((posx==fld.nest_x&&posy==fld.nest_y)||(posx==fld.food_x&&posy==fld.food_y)){
+									return true;
+								}
+								else{
+									prev_x=temp_x;
+									prev_y=temp_y;
+									return false;	
+								}
+							}
+							
+						}
+			
+						}
+						//if this code executes it means that no ant has moved from food to nest
+						if(posx==fld.nest_x&&posy==fld.nest_y){
+							for(int i=0;i<MAX_ROWS;i++){
+								for(int j=0;j<MAX_COLUMNS;j++){
+									if(fld.mat[i][j][1]=='A')fld.mat[i][j][1]='X';
+								}
+							}
+						}
+						else{
+							fld.mat[posx][posy][1]='A';
+							target_x=fld.nest_x;
+							target_y=fld.nest_y;
+							if(step(target)){
+							fld.mat[posx][posy][1]='A';	
+							prev_x=fld.nest_x;
+							prev_y=fld.nest_y;
+							return true;
+							}
+							return false;
+						}
+						break;
+	}
+}
+
+bool ant::search(int object){
+	char ob;
+	if(object==fellow_ant){
+		ob='A';
+	}
+	if(object==food){
+		ob='F';
+	}
+	if(object==nest){
+		ob='N';
+	}
+		for(int i=posx-RANGE;i<posx+RANGE+1;i++){
+			for(int j=posy-RANGE;j<posy+RANGE+1;j++){
+					if(fld.mat[i][j][0]==ob){ 
+						target_x=i;
+						target_y=j;
+						return true;
+						
+					}
+			}
+		}
+	return false;
+}

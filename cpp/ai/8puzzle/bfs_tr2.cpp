@@ -1,0 +1,348 @@
+/*8 puzzle game - bfs*/
+
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+using namespace std;
+
+//the 8-puzzle board
+/********************************************************************************/
+class board{
+  int goal[3][3];
+  int mat[3][3];
+  int queue[1000][3][3];
+  int front,back;
+  int posx,posy;
+public:
+  board();
+  ~board();
+  void print_configuration();
+  bool move(char);
+  bool compare();
+  void play();
+  bool next_move();
+  bool exists();
+  void show_route();
+  
+};
+
+//the main funcion
+/********************************************************************************/
+int main(){
+  board bd;
+  bd.print_configuration();
+  bd.play();
+  bd.show_route();
+return 0;
+}
+
+
+//constructor for board class
+/********************************************************************************/
+board::board(){
+  cout<<"Enter initial configuration of matrix:\n";
+  for(int i=0;i<3;i++){
+    for(int j=0;j<3;j++){
+      cin>>mat[i][j];
+      if(mat[i][j]==0){posx=i;posy=j;}
+      
+    }
+   } 
+  cout<<"\n\nEnter final configuration of matrix:\n";
+  for(int i=0;i<3;i++){
+    for(int j=0;j<3;j++){
+      cin>>goal[i][j];
+    }
+  }
+  
+  for(int i=0;i<3;i++){
+    for(int j=0;j<3;j++){
+      queue[0][i][j]=mat[i][j];
+    }
+  }
+  back=1;
+  front=0;
+}
+
+
+//destructor for board class
+/********************************************************************************/
+board::~board(){
+  cout<<"\n\nDONE\n\n";
+}
+
+
+//prints the board
+/********************************************************************************/
+void board::print_configuration(){
+  cout<<"\n\n";
+  cout<<"matrix\t\t\tgoal";
+  cout<<"\n------\t\t\t----\n";
+  for(int i=0;i<3;i++){
+    for(int j=0;j<3;j++){
+      cout<<mat[i][j]<<" ";
+    }
+    cout<<"\t\t\t";
+    for(int j=0;j<3;j++){
+      cout<<goal[i][j]<<" ";
+    }
+    cout<<"\n";
+  }
+  cout<<"\n\n";
+  
+}
+
+
+//compares the board to the goal state
+/********************************************************************************/
+bool board::compare(){
+  for(int i=0;i<3;i++){
+    for(int j=0;j<3;j++){
+      if(mat[i][j]!=goal[i][j]){
+	return false;
+      }
+    }
+  }
+  return true;
+}
+
+
+//makes a move
+/********************************************************************************/
+bool board::move(char direction){
+  int temp;
+  switch(direction){
+    case 'L': if(posy!=0){
+		temp=mat[posx][posy];
+		mat[posx][posy]=mat[posx][posy-1];
+		mat[posx][posy-1]=temp;
+		posy=posy-1;
+		if(!exists()) return true;
+		else{
+		  temp=mat[posx][posy];
+		mat[posx][posy]=mat[posx][posy+1];
+		mat[posx][posy+1]=temp;
+		posy=posy+1;
+		}
+	      }break;
+    case 'R': if(posy!=2){
+		temp=mat[posx][posy];
+		mat[posx][posy]=mat[posx][posy+1];
+		mat[posx][posy+1]=temp;
+		posy=posy+1;
+		if (!exists()) return true;
+		else{
+		temp=mat[posx][posy];
+		mat[posx][posy]=mat[posx][posy-1];
+		mat[posx][posy-1]=temp;
+		posy=posy-1;
+		  
+		}
+	      }break;
+    case 'T': if(posx!=0){
+		temp=mat[posx][posy];
+		mat[posx][posy]=mat[posx-1][posy];
+		mat[posx-1][posy]=temp;
+		posx=posx-1;
+		if(!exists()) return true;
+		else{
+		temp=mat[posx][posy];
+		mat[posx][posy]=mat[posx+1][posy];
+		mat[posx+1][posy]=temp;
+		posx=posx+1;
+		}
+	      }break;
+    case 'B': if(posx!=2){
+		temp=mat[posx][posy];
+		mat[posx][posy]=mat[posx+1][posy];
+		mat[posx+1][posy]=temp;
+		posx=posx+1;
+		if(!exists())return true;
+		else{
+		temp=mat[posx][posy];
+		mat[posx][posy]=mat[posx-1][posy];
+		mat[posx-1][posy]=temp;
+		posx=posx-1;
+		}
+	      }break;
+    
+  }
+  
+  return false;
+}
+
+//runs till a solution is found
+/********************************************************************************/
+void board::play(){
+  system("clear");
+      if(compare()) return;
+  while(1){
+    system("clear");
+      print_configuration();
+    //  system("sleep 1");
+      if(next_move()){
+      print_configuration();
+	return;
+      }  
+   }
+}
+
+//makes entries in queue
+  /***************************************************************************************/
+bool board::next_move(){
+    int temp[3][3],tempx,tempy;
+    //``````````````````````make a copy of the present matrix
+    for(int i=0;i<3;i++){
+      for(int j=0;j<3;j++){
+	temp[i][j]=mat[i][j];
+      }
+    }
+    tempx=posx;
+    tempy=posy;
+    //``````````````````````````make a left move
+    if(move('L')){
+      for(int i=0;i<3;i++){
+	for(int j=0;j<3;j++){
+	  queue[back][i][j]=mat[i][j];
+	}
+      }
+    }
+    back++;
+    cout<<"\nmove left\n";
+    print_configuration();
+    system("sleep 2");
+    if(compare()) return true;
+    //``````````````````````````restore original matrix
+    for(int i=0;i<3;i++){
+      for(int j=0;j<3;j++){
+	mat[i][j]=temp[i][j];
+      }
+    }
+    posx=tempx;
+    posy=tempy;
+    //`````````````````````````````make a right move
+    if(move('R')){
+      for(int i=0;i<3;i++){
+	for(int j=0;j<3;j++){
+	  queue[back][i][j]=mat[i][j];
+	}
+      }
+      
+    
+    }
+    back++;
+    cout<<"\nmove right\n";
+    print_configuration();
+    system("sleep 2");
+    if(compare()) return true;
+    //`````````````````````````````restore orignal matrix
+    for(int i=0;i<3;i++){
+      for(int j=0;j<3;j++){
+	mat[i][j]=temp[i][j];
+      }
+    }
+    posx=tempx;
+    posy=tempy;
+    //````````````````````````````make a top move
+    if(move('T')){
+      for(int i=0;i<3;i++){
+	for(int j=0;j<3;j++){
+	  queue[back][i][j]=mat[i][j];
+	}
+      }
+    }
+    back++;
+    cout<<"\nmove top\n";
+    print_configuration();
+    system("sleep 2");
+    
+    if(compare()) return true;
+    //``````````````````````````restore orignal matrix
+    for(int i=0;i<3;i++){
+      for(int j=0;j<3;j++){
+	mat[i][j]=temp[i][j];
+      }
+    }
+    posx=tempx;
+    posy=tempy;
+    //`````````````````````````````make a bottom move
+    if(move('B')){
+      for(int i=0;i<3;i++){
+	for(int j=0;j<3;j++){
+	  queue[back][i][j]=mat[i][j];
+	}
+      }
+    }
+    back++; 
+    cout<<"\nmove bottom\n";
+    print_configuration();
+    system("sleep 2");
+    
+    if(compare()) return true;
+    //```````````````````````````````restore orignal matrix
+    for(int i=0;i<3;i++){
+      for(int j=0;j<3;j++){
+	mat[i][j]=temp[i][j];
+      }
+    }
+    posx=tempx;
+    posy=tempy;
+ //````````````````````````set present matrix as the next one in the queue
+    
+    front++;
+    for(int i=0;i<3;i++){
+      for(int j=0;j<3;j++){
+	mat[i][j]=queue[front][i][j];
+	if(queue[front][i][j]==0){
+	  posx=i;
+	  posy=j;
+	}
+	
+      }
+    }
+ return false;
+ }
+
+
+//checks if configuration has been analyzed earlier
+/********************************************************************************/
+bool board::exists(){
+  bool equal;
+  for(int z=0; z<=back;z++){
+    equal=true;
+      for(int i=0;i<3;i++){
+      for(int j=0;j<3;j++){
+	if(mat[i][j]!=queue[z][i][j]){
+	  equal=false;
+	}
+      }
+    }
+    if(equal){
+      return true;
+    }
+  }
+  return false;
+}
+//print route from root to solution
+/********************************************************************************/
+
+void board::show_route(){
+  int last=back+1;
+  int route[100];
+  int i=0;
+  while(last>=0){
+    route[i++]=last;
+    if(last==0){break;}
+    last=last/4;
+  }
+  i--;
+  for(;i>=0;i--){
+    for(int u=0;u<3;u++){
+      for(int v=0;v<3;v++){
+	cout<<queue[route[i]][u][v]<<" ";
+      }
+      cout<<endl;
+    }
+    cout<<"\n\n";
+  }
+}

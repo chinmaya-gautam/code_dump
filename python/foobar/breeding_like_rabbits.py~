@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+def answer(str_S):
+    n = 0
+    R = list()
+    R.extend([1,1,2])
+    
+    print R
+    return n
+
+print answer("7")

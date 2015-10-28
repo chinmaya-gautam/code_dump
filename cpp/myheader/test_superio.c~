@@ -1,0 +1,6 @@
+#inlcude "superio.h"
+
+int main(){
+cprintf("hello");
+return 0;
+}

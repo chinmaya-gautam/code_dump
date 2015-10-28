@@ -1,0 +1,13 @@
+#include <stdio.h>
+
+int main(){
+  
+  float request,balance;
+  scanf("%f %f",&request, &balance);
+  if (balance < request) {
+  printf("%.2f\n",balance);
+  return 0;  
+  }
+  printf("%.2f\n",(balance-request)-0.50);
+  return 0;  
+}

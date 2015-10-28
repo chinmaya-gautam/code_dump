@@ -1,0 +1,16 @@
+#define UPPER_LIMIT			256
+#define LOWER_LIMIT 		0
+#define POPULATION_SIZE 	10
+#define NUM_ITERATIONS 		5
+#define NUM_BITS			8
+#define CROSSOVER_PROB		0.75
+#define MUTATION_PROB		0.1
+#define CROSSOVER_MODE		5		//modes: 
+									//0 >1 point static crossover 
+									//1> 1 point random crossover
+									//2> 2 point static crossover
+									//3> 2 point random crossover
+									//4> 2 point variable length static crossover
+									//5> 2 point variable length random crossover
+#define CROSSOVER_POINT1		3	// should be less than NUM_BITS
+#define CROSSOVER_POINT2		5	// should be less than NUM_BITS

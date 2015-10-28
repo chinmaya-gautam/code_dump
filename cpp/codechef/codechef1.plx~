@@ -1,0 +1,10 @@
+#!/usr/bin/perl
+
+my $input = <STDIN>;
+
+/(\d)\s+(\d)/
+
+my $request = $1;
+my $balance = $2;
+
+print $1 $2;

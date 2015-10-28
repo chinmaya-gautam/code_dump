@@ -1,0 +1,353 @@
+//ant simulation
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+#include <cmath>
+
+#define distance(x1,y1,x2,y2) sqrt(((x2)-(x1))*((x2)-(x1))+((y2)-(y1))*((y2)-(y1))) 
+
+#define MAX_ROWS 	30
+#define MAX_COLUMNS	30
+#define NUM_ANTS	10
+#define RAND_STEP	4
+#define RANGE		5
+
+enum directions{__EAST__,__NORTHEAST__,__NORTH__,__NORTHWEST__,__WEST__,__SOUTHWEST__,__SOUTH__,__SOUTHEAST__};
+enum modes{__EXPLORE__,__TRANSPORT__,__TARGET__};
+enum objects{__EMPTY__,__ANT__,__FOOD__,__NEST__};
+
+int LEVEL[8]={40,60,70,80,85,90,95,100};
+
+using namespace std;
+class feild{
+	int mat[MAX_ROWS][MAX_COLUMNS][2];//second layer marks the path to food
+	int nest_x,nest_y;
+	int food_x,food_y;
+	public:
+		feild();
+		void print_feild();
+		bool pheromone_weaken();
+		friend class ant;
+	
+}fld;
+class ant{
+	int mode;
+	int posx,posy;
+	int target_x,target_y;
+	int dir;
+	int steps;
+	int prev_x,prev_y;
+	int control[3];	//found food? if yes then location
+public:
+	ant();
+	void move();
+	bool step(int);
+	bool search(int);
+}ants[NUM_ANTS];
+int main(){
+
+	system("clear");
+	fld.print_feild();
+	system("sleep 2");
+ 	while(1){
+		for(int i=0;i<NUM_ANTS;i++){ants[i].move();}
+		fld.pheromone_weaken();
+		system("clear");
+		fld.print_feild();
+		system("sleep 0.005");
+ 	}
+return 0;
+}
+
+feild::feild(){
+		srand(time(NULL));
+	nest_x=rand()%MAX_ROWS;
+	nest_y=rand()%MAX_COLUMNS;
+	mat[nest_x][nest_y][1]=100;
+	cout<<"\nconfiguring the scenario...\n";
+	system("sleep 0.5");
+	food_x=rand()%MAX_ROWS;
+	food_y=rand()%MAX_COLUMNS;
+	
+	for(int i=0;i<MAX_ROWS;i++){
+		for(int j=0;j<MAX_COLUMNS;j++){
+			if(i==nest_x&&j==nest_y){
+				mat[i][j][0]=__NEST__;
+				mat[i][j][1]=__EMPTY__;
+				continue;
+			}
+			if(i==food_x&&j==food_y){
+				mat[i][j][0]=__FOOD__;
+				mat[i][j][1]=__EMPTY__;
+				continue;
+			}
+			mat[i][j][0]=__EMPTY__;
+			mat[i][j][1]=__EMPTY__;
+		}
+	}
+}
+
+void feild::print_feild(){
+	for(int i=0;i<MAX_ROWS;i++){
+		for(int j=0;j<MAX_COLUMNS;j++){
+			switch(mat[i][j][0]){
+				case  __EMPTY__:cout<<"\033[32m. \033[0m";
+								break;
+				case __NEST__  :cout<<"\033[40m  \033[0m";
+								break;
+				case __FOOD__  :cout<<"\033[47m  \033[0m";
+								break;
+				case __ANT__   :cout<<"\033[41m  \033[0m";
+								break;
+			}
+		}
+		cout<<"\t\t\t";
+		for(int j=0;j<MAX_COLUMNS;j++){
+			if(mat[i][j][1]==__EMPTY__){
+			cout<<"\033[33m. \033[0m";
+			}
+			else{
+				if(mat[i][j][1]>0&&mat[i][j][1]<LEVEL[0]){cout<<"\033[47m  \033[0m";}
+				else if(mat[i][j][1]>=LEVEL[0]&&mat[i][j][1]<LEVEL[1]){cout<<"\033[43m  \033[0m";}
+				else if(mat[i][j][1]>=LEVEL[1]&&mat[i][j][1]<LEVEL[2]){cout<<"\033[42m  \033[0m";}
+				else if(mat[i][j][1]>=LEVEL[2]&&mat[i][j][1]<LEVEL[3]){cout<<"\033[46m  \033[0m";}
+				else if(mat[i][j][1]>=LEVEL[3]&&mat[i][j][1]<LEVEL[4]){cout<<"\033[44m  \033[0m";}
+				else if(mat[i][j][1]>=LEVEL[4]&&mat[i][j][1]<LEVEL[5]){cout<<"\033[45m  \033[0m";}
+				else if(mat[i][j][1]>=LEVEL[5]&&mat[i][j][1]<LEVEL[6]){cout<<"\033[41m  \033[0m";}
+				else if(mat[i][j][1]>=LEVEL[6]&&mat[i][j][1]<LEVEL[7]){cout<<"\033[40m  \033[0m";}
+			}
+		}
+		cout<<endl;
+	}
+}
+
+ant::ant(){
+	posx=fld.nest_x;
+	posy=fld.nest_y;
+	dir=rand()%8;
+	mode=__EXPLORE__;
+	target_x=fld.nest_x;
+	target_y=fld.nest_y;
+	prev_x=-1;					//the step 
+	prev_y=-1;					//last taken
+	control[0]=control[1]=control[2]=0;
+	cout<<"\nnew ant\n\tposx:\t"<<posx<<"\n\tposy:\t"<<posy<<"\n\tdir:\t"<<dir<<endl;
+}
+
+void ant::move(){
+	if(mode==__EXPLORE__){
+		cout<<"\nexploring\n";
+		if(steps<RAND_STEP){
+			steps++;
+			if(fld.mat[posx][posy][0]!=__NEST__ && fld.mat[posx][posy][0]!=__FOOD__)fld.mat[posx][posy][0]=__EMPTY__;
+			step(__EXPLORE__);
+			if(search(__FOOD__)){
+				cout<<"\nfound food\n";
+				mode=__TARGET__;
+				control[0]=1;
+				control[1]=target_x;
+				control[2]=target_y;
+			}
+			if(search(__ANT__)){
+				for(int i=0;i<NUM_ANTS;i++){
+					for(int j=ants[i].posx-RANGE;j<=ants[i].posx+RANGE;j++){
+						for(int k=ants[i].posy-RANGE;k<=ants[i].posy+RANGE;k++){
+							if(posx==j&&posy==k){
+								if(ants[i].control[0]==1){
+									control[1]=target_x=ants[i].control[1];
+									control[2]=target_y=ants[i].control[2];
+									mode=__TARGET__;
+									control[0]=1;
+								}
+							}
+						}
+					}
+				}
+				
+			}
+			if(fld.mat[posx][posy][0]!=__NEST__&&fld.mat[posx][posy][0]!=__FOOD__)fld.mat[posx][posy][0]=__ANT__;
+		}
+		else{
+			steps=0;
+		dir=rand()%8;
+		}
+	}
+	else if(mode==__TARGET__){
+		if(fld.mat[posx][posy][0]!=__NEST__&&fld.mat[posx][posy][0]!=__FOOD__)fld.mat[posx][posy][0]=__EMPTY__;
+		if(step(__TARGET__)){
+			target_x=fld.nest_x;
+			target_y=fld.nest_y;
+			
+			mode=__TRANSPORT__;
+		}
+			if(fld.mat[posx][posy][0]!=__NEST__&&fld.mat[posx][posy][0]!=__FOOD__)fld.mat[posx][posy][0]=__ANT__;
+		
+	}
+	else if(mode=__TRANSPORT__){
+		if(fld.mat[posx][posy][0]!=__NEST__&&fld.mat[posx][posy][0]!=__FOOD__)fld.mat[posx][posy][0]=__EMPTY__;
+		if(step(__TRANSPORT__)){
+			prev_x=posx;
+			prev_y=posy;
+		}
+			if(fld.mat[posx][posy][0]!=__NEST__&&fld.mat[posx][posy][0]!=__FOOD__)fld.mat[posx][posy][0]=__ANT__;
+		
+	}
+	
+}
+bool ant::step(int mode){
+	int min_x,min_y;
+	int temp_x,temp_y;
+	switch(mode){
+		case __EXPLORE__://leave pheromone
+						fld.mat[posx][posy][1]=LEVEL[7];
+						switch(dir){
+						case __EAST__:if(posy==MAX_COLUMNS-1){
+									dir=rand()%8;
+									return false;
+								}
+								else posy=posy+1;
+								break;
+						case __NORTHEAST__:if(posy==MAX_COLUMNS-1||posx==0){
+									dir=rand()%8;
+									return  false;
+								}
+								else {posx=posx-1;
+									posy=posy+1;
+								}
+								break;
+						case __NORTH__:if(posx==0){
+									dir=rand()%8;
+									return false;
+								}
+								else posx=posx-1;
+								break;
+						case __NORTHWEST__:if(posx==0||posy==0){
+									dir=rand()%8;
+									return false;
+								}
+								else {posx=posx-1;
+								posy=posy-1;
+								}
+								break;
+						case __WEST__:if(posy==0){
+									dir=rand()%8;
+									return false;
+								}
+								else posy=posy-1;
+								break;
+						case __SOUTHWEST__:if(posx==MAX_ROWS-1||posy==0){
+									dir=rand()%8;
+									return false;
+								}
+								else {posx=posx+1;
+									posy=posy-1;
+								}
+								break;
+						case __SOUTH__:if(posx==MAX_ROWS-1){
+									dir=rand()%8;
+									return false;
+								}
+								else posx=posx+1;
+								break;
+						case __SOUTHEAST__:if(posx==MAX_ROWS-1||posy==MAX_COLUMNS-1){
+									dir=rand()%8;
+									return false;
+								}
+								else {
+									posx=posx+1;
+									posy=posy+1;
+								}
+								break;
+					}
+					break;
+		case __TARGET__://leave pheromone
+						fld.mat[posx][posy][1]=LEVEL[7];
+					min_x=posx;
+					min_y=posy;
+					for(int i=posx-1;i<=posx+1;i++){
+						for(int j=posy-1;j<=posy+1;j++){
+							if(distance(target_x,target_y,i,j)<distance(target_x,target_y,min_x,min_y)){
+								min_x=i;
+								min_y=j;
+							}
+						}
+					}
+					posx=min_x;
+					posy=min_y;
+					if(posx==target_x&&posy==target_y){return true;}
+					else {return false;}
+					break;
+		case __TRANSPORT__://leave pheromone
+							fld.mat[posx][posy][1]=LEVEL[7];	
+							
+							temp_x=posx;
+						temp_y=posy;
+						for(int i=posx-1;i<posx+2;i++){
+						for(int j=posy-1;j<posy+2;j++){
+							if(i==posx&&j==posy)continue;
+							if(fld.mat[i][j][1]==3&&(i!=prev_x||j!=prev_y)){
+								
+								posx=i;
+								posy=j;
+								if((posx==fld.nest_x&&posy==fld.nest_y)||(posx==fld.food_x&&posy==fld.food_y)){
+									return true;
+								}
+								else{
+									prev_x=temp_x;
+									prev_y=temp_y;
+									return false;	
+								}
+							}
+							
+						}
+			
+						}
+						//if this code executes it means that no ant has moved from food to nest
+						if(posx==fld.nest_x&&posy==fld.nest_y){
+							for(int i=0;i<MAX_ROWS;i++){
+								for(int j=0;j<MAX_COLUMNS;j++){
+									if(fld.mat[i][j][1]==1)fld.mat[i][j][1]=3;
+								}
+							}
+						}
+						else{
+							fld.mat[posx][posy][1]=1;
+							target_x=fld.nest_x;
+							target_y=fld.nest_y;
+							if(step(__TARGET__)){
+							fld.mat[posx][posy][1]=1;
+							prev_x=fld.nest_x;
+							prev_y=fld.nest_y;
+							return true;
+							}
+							return false;
+						}
+						break;
+	}
+	return true;
+}
+
+bool ant::search(int object){
+		for(int i=posx-RANGE;i<posx+RANGE+1;i++){
+			for(int j=posy-RANGE;j<posy+RANGE+1;j++){
+					if(fld.mat[i][j][0]==object){ 
+						target_x=i;
+						target_y=j;
+						return true;
+						
+					}
+			}
+		}
+	return false;
+}
+
+bool feild::pheromone_weaken(){
+	for(int i=0;i<MAX_ROWS;i++){
+		for(int j=0;j<MAX_COLUMNS;j++){
+			if(i!=fld.nest_x&&j!=fld.nest_y&&mat[i][j][1]!=0){
+				mat[i][j][1]--;
+			}
+		}
+	}
+}

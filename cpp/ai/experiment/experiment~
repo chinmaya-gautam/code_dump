@@ -1,0 +1,48 @@
+survey:
+------
+prepare a set of trivial questions having multiple choice answers
+categorize as so :
+
+collage1
+______________________________________________________________________
+		|	junior	|	sophomore	|	undergraduate	|	major
+--------|-----------|---------------|-------------------|------------
+p1		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+p2		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+p3		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+p4		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+...		|			|				|					|
+pn		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+---------------------------------------------------------------------
+		|	diff1	|	diff2		|	diff3			|	diff4
+
+collage2
+______________________________________________________________________
+		|	junior	|	sophomore	|	undergraduate	|	major
+--------|-----------|---------------|-------------------|------------
+p1		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+p2		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+p3		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+p4		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+...		|			|				|					|
+pn		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+---------------------------------------------------------------------
+		|	diff1	|	diff2		|	diff3			|	diff4
+
+collage3
+______________________________________________________________________
+		|	junior	|	sophomore	|	undergraduate	|	major
+--------|-----------|---------------|-------------------|------------
+p1		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+p2		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+p3		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+p4		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+...		|			|				|					|
+pn		|	<g1>	|	<g2>		|	<g3>			|	<g4>
+---------------------------------------------------------------------
+		|	diff1	|	diff2		|	diff3			|	diff4
+
+find the average number of students in each year giving the a answer as the option chosen by most.
+the average should be in the order 4>3>2>1 where 4,3,2,1 are various years of study.
+
+by the survey we will conclude that the general opinion of humans converges to a point and is guided by the society.
