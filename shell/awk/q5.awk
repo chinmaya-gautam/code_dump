@@ -1,0 +1,8 @@
+#q5.awk
+
+BEGIN{}
+
+$4 ~ /sales/ || $4 ~ /marketting/ {
+print $0
+
+}

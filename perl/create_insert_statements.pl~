@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+
+my $filename = $ARGV[0];
+
+print $filename;

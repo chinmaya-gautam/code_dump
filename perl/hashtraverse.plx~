@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+#hashtraverse.plx
+
+use warnings;
+use strict;
+
+my %db = (
+	"chinmaya gautam" =>

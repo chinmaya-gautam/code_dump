@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+#filetest1.plx
+
+use warnings;
+use strict;
+
+my $target;
+
+while(1){
+	print "What file should I write on? ";
+	$target=<STDIN>;
+	chomp $target;
+
+	if(-d $target){
+		print "No, target is a directory\n";
+		next;
+	}
+	if (-e $target){
+		print "File already exists. What should i do?\n";
+		print "Enter 'r' to write to a different name\n";
+		print "'o' to overwrite\n";
+		print "'b' to backup to $target.old\n";
+		my $choice = <STDIN>;
+		chomp $choice;
+		if ($choice eq "r"){
+			next;
+		}elsif($choice eq "o"){
+			unless (-o $target){
+				print "can't overwrite the file is not yours\n"; next;
+			}
+			unless (-w $target){
+				print "can't overwrite $target";
+			}
+		}elsif($choice eq "b"){
+			if(rename ($target,$target.".old")){
+				print "Ok, moved $target to $target.old\n";
+			}else{
+				print "could not rename file: $!\n";
+				next;
+			}
+		}else{
+			print "I didn't understand the answer\n";
+			next;
+		}
+	}
+	last if open OUTPUT,"> $target";
+	print "I could not write on $target: $!";
+}	
+print OUTPUT "congratulations!\n";
+print "wrote to file $target!\n";

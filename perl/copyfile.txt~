@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+#copyfile.plx
+
+use warnings;
+use strict;
+
+my ($infile,$outfile)=(shift,shift);
+open IN,$infile or die "could not open $infile: $!\n";
+open OUT,$outfile or die "could not open $outfile: $!\n";
+
+while(<IN>){
+printf OUT $_;
+}

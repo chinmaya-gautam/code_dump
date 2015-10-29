@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+#test
+
+use warnings;
+use strict;
+
+print "more elements on left than right : ";
+my ($a, $b, $c)=(1,2);
+print"$a $b $c\n";
+
+print "more elements on right than left : ";
+($a, $b)=(1,2,3);
+print"$a $b\n";
+
+print "left is scalar : ";
+$a=(1,2);
+print"$a\n";
+
+
+print "right is scalar : ";
+($a, $b, $c)=1;
+print"$a $b $c\n";

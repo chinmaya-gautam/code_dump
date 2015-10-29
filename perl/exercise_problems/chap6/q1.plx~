@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+#q1.plx
+
+use warnings;
+use strict;
+
+print "Enter the string to search for: ";
+my $input = <STDIN>;
+chomp $input;
+
+opendir DH,'../../.' or die $!;
+my $checked="";
+
+while(my $file = readdir(DH)){
+	next if $file eq "." or $file eq "..";
+ 	open FILE,"../../$file" or print "could not open file $file: $!\n";
+	while(<FILE>){
+		if(/$input/ && $checked ne $file){
+			$checked=$file;
+			print "Found $input in file $file\n";
+		}
+ 	}
+}
+print "\n\n Searched the entired directory\n";

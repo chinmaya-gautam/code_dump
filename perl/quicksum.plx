@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+#quicksum.plx
+
+use warnings;
+use strict;
+
+my $total;
+$total += $_ foreach @ARGV;
+print "the total is: $total\n";

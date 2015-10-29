@@ -1,0 +1,13 @@
+#!/usr/bin/perl
+#split.plx
+
+use warnings;
+use strict;
+
+my $passwd = "chinmaya:x:1000:1000:chinmaya,,,:/home/chinmaya:/bin/bash";
+my @feild = split /:/, $passwd;
+
+print "Login name : $feild[0]\n";
+print "userid : $feild[4]\n";
+print "home dir : $feild[5]\n";
+print "shell " $feild[6]\n";

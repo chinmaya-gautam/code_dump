@@ -1,0 +1,9 @@
+#density
+BEGIN{
+  print "country\t\tdensity"
+  print "_______\t\t__________"
+}
+
+{
+  if(NR != 1)print $1,"\t\t",$3/$2
+}

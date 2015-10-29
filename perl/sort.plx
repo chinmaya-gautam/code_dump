@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+#sort.plx 
+use warnings;
+use strict;
+
+my ($input,$output) = (shift,shift);
+
+open IN,$input or die "could not open $input: $!\n";
+open OUT,">$output" or die "could not open $output: $!\n";
+
+my @file=<IN>;
+@file=sort @file;
+print OUT @file;
+

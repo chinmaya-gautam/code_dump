@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+#nomatch.plx
+
+use warnings;
+use strict;
+
+my $sentence = "this sentence does not contain the word beign searched for";
+
+print "the sentence does not contain fish" if($sentence !~ /fish/);

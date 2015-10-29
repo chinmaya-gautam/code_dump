@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+#ranges
+
+print ('aa' ..'cc'),"\n";
+print ('a0' .. 'b9'),"\n";

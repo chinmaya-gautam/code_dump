@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include "story.h"
+
+int main(){
+  int i,j,NUM,not_para;
+  NUM=0;
+  printf("\nthe short story:\n\n");
+  for (i=0;i<=N;i++){
+    printf("%s\n",LINE[i]);
+    not_para=0;
+    for(j=0;j<5;j++){
+      if(LINE[i][j]!=' '){
+	not_para=1;
+	break;
+      }
+    }
+    if(not_para != 1){
+      NUM++;
+    }
+  }
+  printf("\n\nthe number of paragraphs: %d",NUM);
+  
+  return 0;
+}

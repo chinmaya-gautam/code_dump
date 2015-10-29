@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+use LWP::simple;
+
+my $page=get("http://www.google.com/");
+print $page,"\n";

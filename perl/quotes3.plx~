@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+print "It's easy, said he";
+print '"stop", cried the man';

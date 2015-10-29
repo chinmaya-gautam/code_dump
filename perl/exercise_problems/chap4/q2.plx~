@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+#number guessing
+
+use warnings;
+use strict;
+
+my $answer = 37;
+
+while(<STDIN>){
+chomp;
+last "you got it!\n" if $answer == $_;
+print "you geussed lower\n" if $answer > $_;
+print "you geussed higher\n" if $answer < $_;
+}

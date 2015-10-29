@@ -1,0 +1,45 @@
+#q3.awk
+
+BEGIN{
+FS=","
+printf ("%-10s %7s\n","name","average")
+printf ("%-10s %7s\n","----","-------")
+}
+{
+  if(NR != 1){
+    #find sum of persons
+    sum=0
+    count=0
+    if($3>0){sum+=$3;count1+=1;test[1]+=$3;count+=1}
+    if($4>0){sum+=$4;count2+=1;test[2]+=$4;count+=1}
+    if($5>0){sum+=$5;count3+=1;test[3]+=$5;count+=1}
+    #then find his/her average
+    average=sum/count
+    #add to the team to which he/she belongs
+    if($2 =="Red"){
+      team["red"]+=average
+      countred+=1
+    }
+    if($2 ~/Green/){
+      team["green"]+=average
+      countgreen+=1
+    }
+    if($2 ~/Blue/){
+      team["blue"]+=average;
+      countblue+=1
+    }
+    printf ("%-10s %7.2f\n",$1,average)
+  }
+
+}
+END{
+  print "----------------"
+  print "average for test 1 : ",test[1]/count1
+  print "average for test 2 : ",test[2]/count2
+  print "average for test 3 : ",test[3]/count3
+  print "----------------"
+  print "average for Red team : ",team["red"]/countred
+  print "average for Green team : ",team["green"]/countgreen
+  print "average for Blue team : ",team["blue"]/countblue
+  
+}

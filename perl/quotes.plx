@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+print '\t this is single quoted string \n';
+print "\t this is double quoted string \n";

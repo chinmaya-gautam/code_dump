@@ -1,0 +1,12 @@
+#!/usr/bin/perl
+#match_escaped.plx
+
+use warnings;
+use strict;
+
+my $_ = "This is the sentence to be matched, and it comprises of many words :)";
+print "enter the pattern to match";
+my $match=<STDIN>;
+chomp $match;
+
+print "the word was found\n" if(/\Q$match\E/i);

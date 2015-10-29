@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+#sortnum.plx
+
+use warnings;
+use strict;
+
+my @array = qw(1 6 2 5 62 132 56 76 43 23);
+
+

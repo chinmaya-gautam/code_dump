@@ -1,0 +1,15 @@
+#!/usr/bin/perl
+#nl.plx
+
+use warnings;
+use strict;
+
+open FH,'wordlist.txt' or die $!;
+
+my $lineno=1;
+
+while(<FH>){
+print $lineno++;
+print " ",$_;
+}
+print "\n";

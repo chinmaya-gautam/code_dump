@@ -1,0 +1,6 @@
+hello this is my test file
+and the name of the file is also test file and it is a plain text file
+and this line also mentions that this file is a test file
+and this does not
+neither does this
+or this

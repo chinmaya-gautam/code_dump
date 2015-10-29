@@ -1,0 +1,16 @@
+this is a sample text file
+for all kinds of file handling problem
+this file should contain mainy lines
+and many characters
+and numbers lik 123 45 987
+my phone number is 
+	airtel: 7894044861
+	docomo: 8603575807
+and i will get another one
+everything written in this file is junk
+nevermind that... booga booga !@#!@$!%!@$
+yesssss
+ok some other stuff is appended at the end of the file:
+ 13  67 383 sample_file.txt
+chinmaya tty7         2011-12-17 12:05 (:0)
+chinmaya pts/0        2011-12-18 13:03 (:0)
